@@ -1,34 +1,78 @@
-import  express from "express";
-import globalErrorhandler from "./middlewares/globalErrorhandler"
-import userRouter from "./user/userRouter"
-import bookRouter from "./book/bookRouter"
+const express = require("express");
+const app = express();
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const fileUpload = require("express-fileupload");
+const path = require("path");
 
+const errorMiddleware = require("./middleware/error");
 
-
-
-const app= express();
+// Config
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  require("dotenv").config({ path: "backend/config/config.env" });
+}
 
 app.use(express.json());
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(fileUpload());
 
-// routes  , callbecks => (req, res, next) => {}
-app.get('/',(req, res, next) => {
+// Route Imports
+const product = require("./routes/productRoute");
+const user = require("./routes/userRoute");
+const order = require("./routes/orderRoute");
+const payment = require("./routes/paymentRoute");
 
-    // const error = createHttpError(400,"something went wrong")
-    // throw  error;
+app.use("/api/v1", product);
+app.use("/api/v1", user);
+app.use("/api/v1", order);
+app.use("/api/v1", payment);
 
-      res.json({message:"welcome to elib apis"});
-})
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
-app.use("/api/users",userRouter);
-app.use("/api/books",bookRouter);
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../frontend/build/index.html"));
+});
 
+// Middleware for Errors
+app.use(errorMiddleware);
 
-
-// error handler
-app.use(globalErrorhandler);
-
-
+module.exports = app;
 
 
 
-export default app;
+
+// import  express from "express";
+// import globalErrorhandler from "./middlewares/globalErrorhandler"
+// import userRouter from "./user/userRouter"
+// import bookRouter from "./book/bookRouter"
+
+
+
+
+// const app= express();
+
+// app.use(express.json());
+
+// // routes  , callbecks => (req, res, next) => {}
+// app.get('/',(req, res, next) => {
+
+//     // const error = createHttpError(400,"something went wrong")
+//     // throw  error;
+
+//       res.json({message:"welcome to elib apis"});
+// })
+
+// app.use("/api/users",userRouter);
+// app.use("/api/books",bookRouter);
+
+
+
+// // error handler
+// app.use(globalErrorhandler);
+
+
+
+
+
+// export default app;
