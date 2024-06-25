@@ -1,8 +1,25 @@
-const ErrorHandler = require("../utils/errorhander");
+import { Request, Response, NextFunction } from 'express';
+import ErrorHandler from '../utils/errorhander';
+import { config } from '../config/config';
 
-module.exports = (err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.message = err.message || "Internal Server Error";
+interface CustomError extends Error {
+  statusCode?: number;
+  code?: number;
+  keyValue?: Record<string, unknown>;
+  path?: string;
+  name: string;
+}
+
+
+const errorMiddleware = (err: CustomError , req:Request, res:Response, next:NextFunction) => {
+
+  let error = { ...err }as CustomError;
+
+  // default message and statuscode
+  error.message = err.message|| 'Internal Server Error';
+
+  error.statusCode = err.statusCode || 500;
+  
 
   // Wrong Mongodb Id error
   if (err.name === "CastError") {
@@ -12,7 +29,7 @@ module.exports = (err, req, res, next) => {
 
   // Mongoose duplicate key error
   if (err.code === 11000) {
-    const message = `Duplicate ${Object.keys(err.keyValue)} Entered`;
+    const message = `Duplicate ${Object.keys(err.keyValue!)} Entered`;
     err = new ErrorHandler(message, 400);
   }
 
@@ -28,8 +45,11 @@ module.exports = (err, req, res, next) => {
     err = new ErrorHandler(message, 400);
   }
 
-  res.status(err.statusCode).json({
+  res.status(error.statusCode).json({
     success: false,
     message: err.message,
+    errorStack: config.env === 'development' ? err.stack : undefined,
   });
 };
+
+export default errorMiddleware;
