@@ -1,5 +1,5 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   registerUser,
   loginUser,
   logout,
@@ -12,8 +12,9 @@ const {
   getSingleUser,
   updateUserRole,
   deleteUser,
-} = require("../controllers/userController");
-const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
+} from "./userController";
+import { isAuthenticatedUser, authorizeRoles } from "../middlewares/auth";
+
 
 const router = express.Router();
 
