@@ -1,11 +1,11 @@
-const Product = require("../models/productModel");
-const ErrorHander = require("../utils/errorhander");
-const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const ApiFeatures = require("../utils/apifeatures");
-const cloudinary = require("cloudinary");
+import Product from './productModel';
+import ErrorHandler from '../utils/errorhandler';
+import catchAsyncError from '../middlewares/catchAsyncError';
+import ApiFeatures from '../utils/apifeatures';
+import cloudinary from 'cloudinary';
 
 // Create Product -- Admin
-exports.createProduct = catchAsyncErrors(async (req, res, next) => {
+const createProduct = catchAsyncError(async (req, res, next) => {
   let images = [];
 
   if (typeof req.body.images === "string") {
@@ -39,7 +39,7 @@ exports.createProduct = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get All Product
-exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
+const getAllProducts = catchAsyncError(async (req, res, next) => {
   const resultPerPage = 8;
   const productsCount = await Product.countDocuments();
 
@@ -65,7 +65,7 @@ exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get All Product (Admin)
-exports.getAdminProducts = catchAsyncErrors(async (req, res, next) => {
+const getAdminProducts = catchAsyncError(async (req, res, next) => {
   const products = await Product.find();
 
   res.status(200).json({
@@ -75,11 +75,11 @@ exports.getAdminProducts = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get Product Details
-exports.getProductDetails = catchAsyncErrors(async (req, res, next) => {
+const getProductDetails = catchAsyncError(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
   if (!product) {
-    return next(new ErrorHander("Product not found", 404));
+    return next(new ErrorHandler("Product not found", 404));
   }
 
   res.status(200).json({
@@ -90,11 +90,11 @@ exports.getProductDetails = catchAsyncErrors(async (req, res, next) => {
 
 // Update Product -- Admin
 
-exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
+const updateProduct = catchAsyncError(async (req, res, next) => {
   let product = await Product.findById(req.params.id);
 
   if (!product) {
-    return next(new ErrorHander("Product not found", 404));
+    return next(new ErrorHandler("Product not found", 404));
   }
 
   // Images Start Here
@@ -142,11 +142,11 @@ exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
 
 // Delete Product
 
-exports.deleteProduct = catchAsyncErrors(async (req, res, next) => {
+const deleteProduct = catchAsyncError(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
   if (!product) {
-    return next(new ErrorHander("Product not found", 404));
+    return next(new ErrorHandler("Product not found", 404));
   }
 
   // Deleting Images From Cloudinary
@@ -163,7 +163,7 @@ exports.deleteProduct = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Create New Review or Update the review
-exports.createProductReview = catchAsyncErrors(async (req, res, next) => {
+const createProductReview = catchAsyncError(async (req, res, next) => {
   const { rating, comment, productId } = req.body;
 
   const review = {
@@ -205,11 +205,11 @@ exports.createProductReview = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get All Reviews of a product
-exports.getProductReviews = catchAsyncErrors(async (req, res, next) => {
+const getProductReviews = catchAsyncError(async (req, res, next) => {
   const product = await Product.findById(req.query.id);
 
   if (!product) {
-    return next(new ErrorHander("Product not found", 404));
+    return next(new ErrorHandler("Product not found", 404));
   }
 
   res.status(200).json({
@@ -219,11 +219,11 @@ exports.getProductReviews = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Delete Review
-exports.deleteReview = catchAsyncErrors(async (req, res, next) => {
+const deleteReview = catchAsyncError(async (req, res, next) => {
   const product = await Product.findById(req.query.productId);
 
   if (!product) {
-    return next(new ErrorHander("Product not found", 404));
+    return next(new ErrorHandler("Product not found", 404));
   }
 
   const reviews = product.reviews.filter(
@@ -264,3 +264,15 @@ exports.deleteReview = catchAsyncErrors(async (req, res, next) => {
     success: true,
   });
 });
+
+export {
+  getAllProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getProductDetails,
+  createProductReview,
+  getProductReviews,
+  deleteReview,
+  getAdminProducts,
+}

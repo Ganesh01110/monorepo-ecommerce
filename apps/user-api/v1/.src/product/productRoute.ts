@@ -1,5 +1,5 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   getAllProducts,
   createProduct,
   updateProduct,
@@ -9,8 +9,8 @@ const {
   getProductReviews,
   deleteReview,
   getAdminProducts,
-} = require("../controllers/productController");
-const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
+} from "./productController";
+import { isAuthenticatedUser, authorizeRoles } from "../middlewares/auth";
 
 const router = express.Router();
 
