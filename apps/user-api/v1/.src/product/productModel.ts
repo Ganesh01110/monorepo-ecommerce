@@ -1,6 +1,8 @@
-const mongoose = require("mongoose");
+import mongoose, { Schema , SchemaTypes } from 'mongoose';
+import { IProduct, IProductModel } from './productTypes';
 
-const productSchema = mongoose.Schema({
+
+const productSchema =new  Schema<IProduct>({
   name: {
     type: String,
     required: [true, "Please Enter product Name"],
@@ -48,7 +50,7 @@ const productSchema = mongoose.Schema({
   reviews: [
     {
       user: {
-        type: mongoose.Schema.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
       },
@@ -67,8 +69,8 @@ const productSchema = mongoose.Schema({
     },
   ],
 
-  user: {
-    type: mongoose.Schema.ObjectId,
+  user : {
+    type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
@@ -78,4 +80,8 @@ const productSchema = mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Product", productSchema);
+// module.exports = mongoose.model("Product", productSchema);
+
+const Product: IProductModel = mongoose.model<IProduct, IProductModel>('Product', productSchema);
+
+export default Product;
