@@ -1,10 +1,12 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
+import mongoose, { Schema } from 'mongoose';
+import validator from 'validator';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { IUser, IUserModel } from './userTypes';
+import {config} from '../config/config'
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema<IUser>({
   name: {
     type: String,
     required: [true, "Please Enter Your Name"],
@@ -46,7 +48,7 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpire: Date,
 });
 
-userSchema.pre("save", async function (next) {
+userSchema.pre<IUser>("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
@@ -55,20 +57,20 @@ userSchema.pre("save", async function (next) {
 });
 
 // JWT TOKEN
-userSchema.methods.getJWTToken = function () {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE,
+userSchema.methods.getJWTToken = function (): string {
+  return jwt.sign({ id: this._id }, config.jwtSecret as string, {
+    expiresIn: config.jwtExpire as string,
   });
 };
 
 // Compare Password
 
-userSchema.methods.comparePassword = async function (password) {
+userSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
   return await bcrypt.compare(password, this.password);
 };
 
 // Generating Password Reset Token
-userSchema.methods.getResetPasswordToken = function () {
+userSchema.methods.getResetPasswordToken = function (): string {
   // Generating Token
   const resetToken = crypto.randomBytes(20).toString("hex");
 
@@ -83,4 +85,8 @@ userSchema.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-module.exports = mongoose.model("User", userSchema);
+// module.exports = mongoose.model("User", userSchema);
+
+const User: IUserModel = mongoose.model<IUser, IUserModel>('User', userSchema);
+
+export default User;
