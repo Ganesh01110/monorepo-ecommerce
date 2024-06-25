@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import ErrorHandler from '../utils/errorhander';
+import ErrorHandler from '../utils/errorhandler';
+import createHttpError,{HttpError} from "http-errors";
 import { config } from '../config/config';
 
 interface CustomError extends Error {
@@ -11,7 +12,12 @@ interface CustomError extends Error {
 }
 
 
-const errorMiddleware = (err: CustomError , req:Request, res:Response, next:NextFunction) => {
+const errorMiddleware = (
+  err: CustomError | HttpError ,
+  req:Request,
+  res:Response, 
+  next:NextFunction
+   ) => {
 
   let error = { ...err }as CustomError;
 
