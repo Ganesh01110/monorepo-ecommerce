@@ -1,6 +1,7 @@
-const mongoose = require("mongoose");
+import mongoose, { Schema } from 'mongoose';
+import { IOrder, IOrderModel } from './orderTypes';
 
-const orderSchema = new mongoose.Schema({
+const orderSchema = new Schema<IOrder>({
   shippingInfo: {
     address: {
       type: String,
@@ -48,14 +49,14 @@ const orderSchema = new mongoose.Schema({
         required: true,
       },
       product: {
-        type: mongoose.Schema.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Product",
         required: true,
       },
     },
   ],
   user: {
-    type: mongoose.Schema.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
@@ -98,11 +99,17 @@ const orderSchema = new mongoose.Schema({
     required: true,
     default: "Processing",
   },
-  deliveredAt: Date,
+  deliveredAt: {
+    type: Date,
+},
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-module.exports = mongoose.model("Order", orderSchema);
+// module.exports = mongoose.model("Order", orderSchema);
+
+const Order: IOrderModel = mongoose.model<IOrder, IOrderModel>('Order', orderSchema);
+
+export default Order;
