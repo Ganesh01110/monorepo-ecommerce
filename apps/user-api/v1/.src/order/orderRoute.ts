@@ -1,15 +1,15 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   newOrder,
   getSingleOrder,
   myOrders,
   getAllOrders,
   updateOrder,
   deleteOrder,
-} = require("../controllers/orderController");
-const router = express.Router();
+} from "./orderController";
+import { isAuthenticatedUser, authorizeRoles } from "../middlewares/auth";
 
-const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
+const router = express.Router();
 
 router.route("/order/new").post(isAuthenticatedUser, newOrder);
 
