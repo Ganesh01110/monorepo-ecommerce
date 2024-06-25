@@ -1,18 +1,20 @@
-const nodeMailer = require("nodemailer");
+import nodeMailer from 'nodemailer';
+import {config} from '../config/config'
+
 
 const sendEmail = async (options) => {
   const transporter = nodeMailer.createTransport({
-    host: process.env.SMPT_HOST,
-    port: process.env.SMPT_PORT,
-    service: process.env.SMPT_SERVICE,
+    host: config.smtpHost,
+    port: config.smtpPort,
+    service: config.smtpService,
     auth: {
-      user: process.env.SMPT_MAIL,
-      pass: process.env.SMPT_PASSWORD,
+      user: config.smtpMail,
+      pass: config.smtpPassword,
     },
   });
 
   const mailOptions = {
-    from: process.env.SMPT_MAIL,
+    from: config.smtpMail,
     to: options.email,
     subject: options.subject,
     text: options.message,
@@ -21,4 +23,4 @@ const sendEmail = async (options) => {
   await transporter.sendMail(mailOptions);
 };
 
-module.exports = sendEmail;
+export default sendEmail;
