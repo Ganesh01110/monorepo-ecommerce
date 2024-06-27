@@ -1,9 +1,13 @@
-class ApiFeatures {
-    constructor(private query:any, private queryStr:any) {
-      this.query = query;
-      this.queryStr = queryStr;
-    }
-  
+import { Document, Model, Query } from 'mongoose';
+
+class ApiFeatures<T extends Document, U extends Model<T>> {
+  private query: Query<T[], T, U>;
+  private queryStr: any;
+
+  constructor(query: Query<T[], T, U>, queryStr: any) {
+    this.query = query;
+    this.queryStr = queryStr;
+  }
     search() {
       const keyword = this.queryStr.keyword
         ? {
@@ -43,6 +47,10 @@ class ApiFeatures {
       this.query = this.query.limit(resultPerPage).skip(skip);
   
       return this;
+    }
+    
+    async executeQuery(): Promise<T[]> {
+      return await this.query.exec();
     }
   }
   

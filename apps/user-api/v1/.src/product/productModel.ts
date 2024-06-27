@@ -2,7 +2,7 @@ import mongoose, { Schema , SchemaTypes } from 'mongoose';
 import { IProduct, IProductModel } from './productTypes';
 
 
-const productSchema =new  Schema<IProduct>({
+const productSchema =new Schema<IProduct>({
   name: {
     type: String,
     required: [true, "Please Enter product Name"],

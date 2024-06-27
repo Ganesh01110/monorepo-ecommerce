@@ -3,9 +3,16 @@ import ErrorHandler from '../utils/errorhandler';
 import catchAsyncError from '../middlewares/catchAsyncError';
 import ApiFeatures from '../utils/apifeatures';
 import cloudinary from 'cloudinary';
+import { Request, Response } from 'express';
+import User from '../user/userModel';
+
+interface AuthenticatedRequest extends Request {
+  user?: any; // Define the type of 'user' according to your authentication setup
+}
+
 
 // Create Product -- Admin
-const createProduct = catchAsyncError(async (req, res, next) => {
+const createProduct = catchAsyncError(async (req: AuthenticatedRequest, res, next) => {
   let images:string[] = [];
 
   if (typeof req.body.images === "string") {
@@ -28,7 +35,7 @@ const createProduct = catchAsyncError(async (req, res, next) => {
   }
 
   req.body.images = imagesLinks;
-  req.body.user = req.user.id;
+  req.body.user = req.user?.id;
 
   const product = await Product.create(req.body);
 
@@ -39,21 +46,27 @@ const createProduct = catchAsyncError(async (req, res, next) => {
 });
 
 // Get All Product
-const getAllProducts = catchAsyncError(async (req, res, next) => {
+const getAllProducts = catchAsyncError(async (req:Request, res:Response ) => {
   const resultPerPage = 8;
-  const productsCount = await Product.countDocuments();
+  // const productsCount = await Product.countDocuments();
 
-  const apiFeature = new ApiFeatures(Product.find(), req.query)
+  const apiFeature = new ApiFeatures (Product.find(), req.query)
     .search()
     .filter();
 
-  let products = await apiFeature.query;
+  // let products = await apiFeature.query;
+
+  // let filteredProductsCount = products.length;
+  let products = await apiFeature.executeQuery();
+
+  const productsCount = await Product.countDocuments();
 
   let filteredProductsCount = products.length;
 
   apiFeature.pagination(resultPerPage);
 
-  products = await apiFeature.query;
+  // products = await apiFeature.query;
+  products = await apiFeature.executeQuery();
 
   res.status(200).json({
     success: true,
@@ -163,17 +176,27 @@ const deleteProduct = catchAsyncError(async (req, res, next) => {
 });
 
 // Create New Review or Update the review
-const createProductReview = catchAsyncError(async (req, res, next) => {
+const createProductReview = catchAsyncError(async (req:Request , res:Response, next) => {
   const { rating, comment, productId } = req.body;
 
+  const user = await User.findById(req.user._id); // Fetch user details
+
+  if (!user) {
+    return next(new ErrorHandler('User not found', 404));
+  }
+
   const review = {
-    user: req.user._id,
-    name: req.user.name,
+    user: user._id,
+    name: user.name,
     rating: Number(rating),
     comment,
   };
 
   const product = await Product.findById(productId);
+
+  if (!product) {
+    return next(new ErrorHandler('Product not found', 404));
+  }
 
   const isReviewed = product.reviews.find(
     (rev) => rev.user.toString() === req.user._id.toString()

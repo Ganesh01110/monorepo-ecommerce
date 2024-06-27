@@ -226,7 +226,7 @@ const getSingleUser = catchAsyncErrors(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new ErrorHandler(`User does not exist with Id: ${req.params.id}`)
+      new ErrorHandler(`User does not exist with Id: ${req.params.id}`,404)
     );
   }
 
