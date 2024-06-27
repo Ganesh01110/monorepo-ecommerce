@@ -144,7 +144,7 @@ const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 // Get User Detail
 const getUserDetails = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user!.id);
 
   res.status(200).json({
     success: true,
@@ -154,7 +154,7 @@ const getUserDetails = catchAsyncErrors(async (req, res, next) => {
 
 // update User password
 const updatePassword = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select("+password");
+  const user = await User.findById(req.user!.id).select("+password");
 
   const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
 
@@ -181,7 +181,7 @@ const updateProfile = catchAsyncErrors(async (req, res, next) => {
   };
 
   if (req.body.avatar !== "") {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user!.id);
 
     const imageId = user.avatar.public_id;
 
@@ -199,7 +199,7 @@ const updateProfile = catchAsyncErrors(async (req, res, next) => {
     };
   }
 
-  const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+  const user = await User.findByIdAndUpdate(req.user!.id, newUserData, {
     new: true,
     runValidators: true,
     useFindAndModify: false,

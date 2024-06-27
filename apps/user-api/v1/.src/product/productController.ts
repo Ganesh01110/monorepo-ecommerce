@@ -199,12 +199,12 @@ const createProductReview = catchAsyncError(async (req:Request , res:Response, n
   }
 
   const isReviewed = product.reviews.find(
-    (rev) => rev.user.toString() === req.user._id.toString()
+    (rev) => rev.user.toString() === req.user!._id.toString()
   );
 
   if (isReviewed) {
     product.reviews.forEach((rev) => {
-      if (rev.user.toString() === req.user._id.toString()) 
+      if (rev.user.toString() === req.user!._id.toString()) 
         {
           rev.rating = rating;
           rev.comment = comment;
@@ -254,7 +254,7 @@ const deleteReview = catchAsyncError(async (req, res, next) => {
   }
 
   const reviews = product.reviews.filter(
-    (rev) => rev._id.toString() !== req.query.id.toString()
+    (rev) => rev._id.toString() !== req.query!.id.toString()
   );
 
   let avg = 0;
