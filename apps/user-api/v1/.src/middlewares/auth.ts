@@ -1,23 +1,35 @@
 import ErrorHandler from '../utils/errorhandler';
+import { Request, Response, NextFunction } from 'express';
 import catchAsyncErrors from './catchAsyncError';
 import jwt from 'jsonwebtoken';
 import User from '../user/userModel';
 import {config} from '../config/config'
 
-exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
+const isAuthenticatedUser = catchAsyncErrors(async (req: Request, res: Response, next: NextFunction) => {
+
+  const { token } = req.cookies;
+
+  if (!token) {
+    return next(new ErrorHandler("Please Login to access this resource", 401));
+  }
 
   try {
-
-    const { token } = req.cookies;
-
-    if (!token) {
-      return next(new ErrorHandler("Please Login to access this resource", 401));
+  
+    const decodedData: any = jwt.verify(token, config.jwtSecret);
+    
+    if (!decodedData || !decodedData.id) {
+      return next(new ErrorHandler('Invalid token format, please login again', 401));
     }
-  
-    const decodedData = jwt.verify(token, config.jwtSecret);
-  
-    req.user = await User.findById(decodedData.id);
-  
+
+    const user = await User.findById(decodedData.id);
+
+    if (!user) {
+      return next(new ErrorHandler('User not found', 404));
+    }
+
+    // Assign user to req.user
+    req.user = { id: user._id }; // Ensure req.user matches your expected type
+
     next();
     
   } catch (error) {
@@ -26,7 +38,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   
 });
 
-exports.authorizeRoles = (...roles) => {
+const authorizeRoles = (...roles) => {
   return (req, res, next) => {
     try {
     
@@ -40,10 +52,12 @@ exports.authorizeRoles = (...roles) => {
       }
   
       next();
-      
+
     } catch (error) {
         return next(new ErrorHandler("Authentication failed", 500));
       }
    
   };
 };
+
+export { isAuthenticatedUser , authorizeRoles };
