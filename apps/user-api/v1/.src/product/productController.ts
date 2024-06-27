@@ -6,7 +6,7 @@ import cloudinary from 'cloudinary';
 
 // Create Product -- Admin
 const createProduct = catchAsyncError(async (req, res, next) => {
-  let images = [];
+  let images:string[] = [];
 
   if (typeof req.body.images === "string") {
     images.push(req.body.images);
@@ -14,7 +14,7 @@ const createProduct = catchAsyncError(async (req, res, next) => {
     images = req.body.images;
   }
 
-  const imagesLinks = [];
+  const imagesLinks: { public_id: string; url: string }[] = [];
 
   for (let i = 0; i < images.length; i++) {
     const result = await cloudinary.v2.uploader.upload(images[i], {
@@ -98,7 +98,7 @@ const updateProduct = catchAsyncError(async (req, res, next) => {
   }
 
   // Images Start Here
-  let images = [];
+  let images: string[] = [];
 
   if (typeof req.body.images === "string") {
     images.push(req.body.images);
@@ -112,7 +112,7 @@ const updateProduct = catchAsyncError(async (req, res, next) => {
       await cloudinary.v2.uploader.destroy(product.images[i].public_id);
     }
 
-    const imagesLinks = [];
+    const imagesLinks: { public_id: string; url: string }[] = [];
 
     for (let i = 0; i < images.length; i++) {
       const result = await cloudinary.v2.uploader.upload(images[i], {
@@ -181,8 +181,12 @@ const createProductReview = catchAsyncError(async (req, res, next) => {
 
   if (isReviewed) {
     product.reviews.forEach((rev) => {
-      if (rev.user.toString() === req.user._id.toString())
-        (rev.rating = rating), (rev.comment = comment);
+      if (rev.user.toString() === req.user._id.toString()) 
+        {
+          rev.rating = rating;
+          rev.comment = comment;
+        }
+       
     });
   } else {
     product.reviews.push(review);
