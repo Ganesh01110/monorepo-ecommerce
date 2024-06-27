@@ -5,6 +5,11 @@ import jwt from 'jsonwebtoken';
 import User from '../user/userModel';
 import {config} from '../config/config'
 
+interface DecodedData {
+  id: string;
+  // Add other properties from decoded JWT if necessary
+}
+
 const isAuthenticatedUser = catchAsyncErrors(async (req: Request, res: Response, next: NextFunction) => {
 
   const { token } = req.cookies;
@@ -15,7 +20,7 @@ const isAuthenticatedUser = catchAsyncErrors(async (req: Request, res: Response,
 
   try {
   
-    const decodedData: any = jwt.verify(token, config.jwtSecret);
+    const decodedData: any = jwt.verify(token, config.jwtSecret) as DecodedData;
     
     if (!decodedData || !decodedData.id) {
       return next(new ErrorHandler('Invalid token format, please login again', 401));
@@ -28,7 +33,7 @@ const isAuthenticatedUser = catchAsyncErrors(async (req: Request, res: Response,
     }
 
     // Assign user to req.user
-    req.user = { id: user._id }; // Ensure req.user matches your expected type
+    req.user = { id: user._id.toString() }; // Ensure req.user matches your expected type
 
     next();
     
