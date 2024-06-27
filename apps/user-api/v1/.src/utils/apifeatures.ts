@@ -1,5 +1,5 @@
 class ApiFeatures {
-    constructor(query, queryStr) {
+    constructor(private query:any, private queryStr:any) {
       this.query = query;
       this.queryStr = queryStr;
     }
@@ -35,7 +35,7 @@ class ApiFeatures {
       return this;
     }
   
-    pagination(resultPerPage) {
+    pagination(resultPerPage: number) {
       const currentPage = Number(this.queryStr.page) || 1;
   
       const skip = resultPerPage * (currentPage - 1);
