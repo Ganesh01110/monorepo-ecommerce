@@ -1,6 +1,7 @@
-const app = require("./app");
-const cloudinary = require("cloudinary");
-const connectDatabase = require("./config/database");
+import app from "./.src/app";
+import cloudinary from "cloudinary";
+import connectDatabase from "./.src/config/database";
+import {config} from './.src/config/config'
 
 // Handling Uncaught Exception
 process.on("uncaughtException", (err) => {
@@ -10,7 +11,7 @@ process.on("uncaughtException", (err) => {
 });
 
 // Config
-if (process.env.NODE_ENV !== "PRODUCTION") {
+if (config.env !== "PRODUCTION") {
   require("dotenv").config({ path: "backend/config/config.env" });
 }
 
@@ -23,12 +24,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const server = app.listen(process.env.PORT, () => {
-  console.log(`Server is working on http://localhost:${process.env.PORT}`);
+const server = app.listen(config.port, () => {
+  console.log(`Server is working on http://localhost:${config.port}`);
 });
 
 // Unhandled Promise Rejection
-process.on("unhandledRejection", (err) => {
+process.on("unhandledRejection", (err:any) => {
   console.log(`Error: ${err.message}`);
   console.log(`Shutting down the server due to Unhandled Promise Rejection`);
 
