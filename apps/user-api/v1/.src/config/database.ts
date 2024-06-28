@@ -9,7 +9,7 @@ const connectDatabase = async() => {
       console.log("datbase connected successfully");
   })
 
-  mongoose.connection.on('error',(error)=>{
+  mongoose.connection.on('error',(error:any)=>{
       console.log("error connecting to database",error);
   })
 
@@ -19,7 +19,7 @@ const connectDatabase = async() => {
       useUnifiedTopology: true,
       useCreateIndex: true,
     })
-    .then((data) => {
+    .then((data:any) => {
       console.log(`Mongodb connected with server: ${data.connection.host}`);
     });
 
@@ -30,4 +30,4 @@ const connectDatabase = async() => {
  
 };
 
-module.exports = connectDatabase;
+export default connectDatabase;

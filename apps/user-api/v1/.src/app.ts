@@ -1,16 +1,19 @@
-const express = require("express");
-const app = express();
-const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
-const fileUpload = require("express-fileupload");
-const path = require("path");
+import express from "express";
+import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
+import fileUpload from "express-fileupload";
+import path from "path";
+import {config} from './config/config'
 
-const errorMiddleware = require("./middleware/error");
+import errorMiddleware from "./middlewares/error";
+import { Request, Response, NextFunction } from "express";
 
 // Config
-if (process.env.NODE_ENV !== "PRODUCTION") {
+if (config.env !== "PRODUCTION") {
   require("dotenv").config({ path: "backend/config/config.env" });
 }
+
+const app= express();
 
 app.use(express.json());
 app.use(cookieParser());
@@ -30,14 +33,15 @@ app.use("/api/v1", payment);
 
 app.use(express.static(path.join(__dirname, "../frontend/build")));
 
-app.get("*", (req, res) => {
+app.get("*", (req:Request, res:Response) => {
   res.sendFile(path.resolve(__dirname, "../frontend/build/index.html"));
 });
 
 // Middleware for Errors
 app.use(errorMiddleware);
 
-module.exports = app;
+
+export default app;
 
 
 

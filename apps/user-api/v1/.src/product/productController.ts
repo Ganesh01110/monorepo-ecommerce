@@ -179,7 +179,7 @@ const deleteProduct = catchAsyncError(async (req, res, next) => {
 const createProductReview = catchAsyncError(async (req:Request , res:Response, next) => {
   const { rating, comment, productId } = req.body;
 
-  const user = await User.findById(req.user._id); // Fetch user details
+  const user = await User.findById(req.user!._id); // Fetch user details
 
   if (!user) {
     return next(new ErrorHandler('User not found', 404));
