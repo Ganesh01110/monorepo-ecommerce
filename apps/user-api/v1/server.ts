@@ -1,5 +1,5 @@
 import app from "./.src/app";
-import cloudinary from "cloudinary";
+import {v2 as cloudinary} from "cloudinary";
 import connectDatabase from "./.src/config/database";
 import {config} from './.src/config/config'
 
@@ -19,9 +19,9 @@ if (config.env !== "PRODUCTION") {
 connectDatabase();
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: config.cloudinaryCloud,
+  api_key: config.cloudinaryApiKey,
+  api_secret: config.clouddinnaryApiSecret,
 });
 
 const server = app.listen(config.port, () => {
