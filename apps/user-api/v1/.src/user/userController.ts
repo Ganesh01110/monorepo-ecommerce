@@ -1,10 +1,19 @@
 import ErrorHandler from "../utils/errorhandler";
 import catchAsyncErrors from "../middlewares/catchAsyncError";
+import { Request, Response, NextFunction } from 'express';
 import User from "./userModel";
+import  { IUser } from "./userTypes";
 import sendToken from "../utils/jwtToken";
 import sendEmail from "../utils/sendEmails";
 import crypto from "crypto";
 import cloudinary from "cloudinary";
+
+// Define an interface for the user property on the request object
+interface CustomRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
 
 // Register a User
 const registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -143,8 +152,17 @@ const resetPassword = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get User Detail
-const getUserDetails = catchAsyncErrors(async (req, res, next) => {
+const getUserDetails = catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new ErrorHandler('User not found', 404));
+  }
+
   const user = await User.findById(req.user!.id);
+
+  if (!user) {
+    return next(new ErrorHandler('User not found', 404));
+  }
+
 
   res.status(200).json({
     success: true,
@@ -153,8 +171,17 @@ const getUserDetails = catchAsyncErrors(async (req, res, next) => {
 });
 
 // update User password
-const updatePassword = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findById(req.user!.id).select("+password");
+const updatePassword = catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction) => {
+
+  if (!req.user) {
+    return next(new ErrorHandler('User not found', 404));
+  }
+
+  const user = await User.findById(req.user.id).select("+password");
+
+  if (!user) {
+    return next(new ErrorHandler('User not found', 404));
+  }
 
   const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
 
@@ -174,8 +201,8 @@ const updatePassword = catchAsyncErrors(async (req, res, next) => {
 });
 
 // update User Profile
-const updateProfile = catchAsyncErrors(async (req, res, next) => {
-  const newUserData = {
+const updateProfile = catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction)=> {
+  const newUserData: Partial<IUser> = {
     name: req.body.name,
     email: req.body.email,
   };
@@ -183,7 +210,11 @@ const updateProfile = catchAsyncErrors(async (req, res, next) => {
   if (req.body.avatar !== "") {
     const user = await User.findById(req.user!.id);
 
-    const imageId = user.avatar.public_id;
+    if (!user) {
+      return next(new ErrorHandler('User not found', 404));
+    }
+
+    const imageId = user.avatar?.public_id;
 
     await cloudinary.v2.uploader.destroy(imageId);
 
