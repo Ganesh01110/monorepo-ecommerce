@@ -1,15 +1,30 @@
 import Product from './productModel';
+import { IProduct , IReview } from './productTypes'
 import ErrorHandler from '../utils/errorhandler';
 import catchAsyncError from '../middlewares/catchAsyncError';
 import ApiFeatures from '../utils/apifeatures';
 import cloudinary from 'cloudinary';
-import { Request, Response } from 'express';
 import User from '../user/userModel';
+import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 
 interface AuthenticatedRequest extends Request {
   user?: any; // Define the type of 'user' according to your authentication setup
 }
 
+// Define an interface for the user property on the request object
+interface CustomRequest extends Request {
+  user?: {
+    id: string;
+    _id: string;
+    name?: string;
+  };
+}
+
+// Type guard to ensure `_id` is defined
+function hasId(review: IReview): review is IReview & { _id: string } {
+  return (review as IReview & { _id: string })._id !== undefined;
+}
 
 // Create Product -- Admin
 const createProduct = catchAsyncError(async (req: AuthenticatedRequest, res, next) => {
@@ -46,7 +61,7 @@ const createProduct = catchAsyncError(async (req: AuthenticatedRequest, res, nex
 });
 
 // Get All Product
-const getAllProducts = catchAsyncError(async (req:Request, res:Response ) => {
+const getAllProducts = catchAsyncError(async (req: Request, res: Response, next: NextFunction)=> {
   const resultPerPage = 8;
   // const productsCount = await Product.countDocuments();
 
@@ -176,21 +191,25 @@ const deleteProduct = catchAsyncError(async (req, res, next) => {
 });
 
 // Create New Review or Update the review
-const createProductReview = catchAsyncError(async (req:Request , res:Response, next) => {
+const createProductReview = catchAsyncError(async (req: CustomRequest, res: Response, next: NextFunction)=> {
+
   const { rating, comment, productId } = req.body;
 
+  
   const user = await User.findById(req.user!._id); // Fetch user details
 
   if (!user) {
     return next(new ErrorHandler('User not found', 404));
   }
 
-  const review = {
-    user: user._id,
-    name: user.name,
+  const review: IReview = {
+    user: new mongoose.Types.ObjectId(user!.id),
+    name: user!.name,
     rating: Number(rating),
     comment,
   };
+
+
 
   const product = await Product.findById(productId);
 
@@ -228,6 +247,7 @@ const createProductReview = catchAsyncError(async (req:Request , res:Response, n
 
   res.status(200).json({
     success: true,
+    review,
   });
 });
 
@@ -246,7 +266,8 @@ const getProductReviews = catchAsyncError(async (req, res, next) => {
 });
 
 // Delete Review
-const deleteReview = catchAsyncError(async (req, res, next) => {
+const deleteReview = catchAsyncError(async (req: CustomRequest, res: Response, next: NextFunction) => {
+
   const product = await Product.findById(req.query.productId);
 
   if (!product) {
@@ -254,7 +275,7 @@ const deleteReview = catchAsyncError(async (req, res, next) => {
   }
 
   const reviews = product.reviews.filter(
-    (rev) => rev._id.toString() !== req.query!.id.toString()
+    (rev) => rev._id?.toString() !== req.query.id?.toString()
   );
 
   let avg = 0;

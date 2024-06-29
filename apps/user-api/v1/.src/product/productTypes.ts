@@ -11,6 +11,7 @@ export interface IReview {
     name: string;
     rating: number;
     comment: string;
+    _id?:string;
 }
 
 export interface IProduct extends Document {
@@ -25,6 +26,7 @@ export interface IProduct extends Document {
     reviews: IReview[];
     user:string | IUser ;// Assuming user ID for simplicity
     createdAt: Date;
+    // id:string;
 }
 
 export interface IProductModel extends Model<IProduct> {}
