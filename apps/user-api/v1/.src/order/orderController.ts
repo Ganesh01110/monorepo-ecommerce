@@ -91,7 +91,14 @@ const updateOrder = catchAsyncErrors(async (req, res, next) => {
 
   if (req.body.status === "Shipped") {
     order.orderItems.forEach(async (o) => {
-      await updateStock(o.product, o.quantity);
+      //await updateStock(o.product, o.quantity);
+      try {
+        await updateStock(o.product , o.quantity);
+      } catch (error) {
+        console.error(error.message);
+         return next(new ErrorHandler("update process for order got some error", 500));
+        // Handle the error appropriately
+      }
     });
   }
   order.orderStatus = req.body.status;
@@ -106,8 +113,13 @@ const updateOrder = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-async function updateStock(id, quantity) {
+async function updateStock(id, quantity: number) {
   const product = await Product.findById(id);
+
+  if (!product) {
+    return (new ErrorHandler("product not found", 404));
+    // throw new Error("Product not found",404);
+  }
 
   product.stock -= quantity;
 
