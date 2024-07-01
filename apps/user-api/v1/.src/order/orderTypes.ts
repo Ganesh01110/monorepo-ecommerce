@@ -35,7 +35,7 @@ export interface IOrder extends Document {
     shippingPrice: number;
     totalPrice: number;
     orderStatus: string;
-    deliveredAt?: Date;
+    deliveredAt?: Date | number;
     createdAt: Date;
 }
 
