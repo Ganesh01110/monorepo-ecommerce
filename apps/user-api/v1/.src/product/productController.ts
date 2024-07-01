@@ -15,8 +15,8 @@ interface AuthenticatedRequest extends Request {
 // Define an interface for the user property on the request object
 interface CustomRequest extends Request {
   user?: {
-    id: string;
-    _id: string;
+    _id: mongoose.Types.ObjectId;
+    id: mongoose.Types.ObjectId;
     name?: string;
   };
 }
@@ -195,7 +195,7 @@ const createProductReview = catchAsyncError(async (req: CustomRequest, res: Resp
 
   const { rating, comment, productId } = req.body;
 
-  
+  // Fetch user details
   const user = await User.findById(req.user!._id); // Fetch user details
 
   if (!user) {
@@ -203,14 +203,15 @@ const createProductReview = catchAsyncError(async (req: CustomRequest, res: Resp
   }
 
   const review: IReview = {
-    user: new mongoose.Types.ObjectId(user!.id),
+    // user: new mongoose.Types.ObjectId(user!.id),
+    user: user!._id.toString(),
     name: user!.name,
     rating: Number(rating),
     comment,
   };
 
 
-
+ // Fetch product details
   const product = await Product.findById(productId);
 
   if (!product) {
@@ -243,6 +244,8 @@ const createProductReview = catchAsyncError(async (req: CustomRequest, res: Resp
 
   product.ratings = avg / product.reviews.length;
 
+
+  // Save product with updated reviews and ratings
   await product.save({ validateBeforeSave: false });
 
   res.status(200).json({
