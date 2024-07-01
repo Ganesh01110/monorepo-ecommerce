@@ -2,9 +2,17 @@ import Order from './orderModel';
 import Product from '../product/productModel';
 import ErrorHandler from "../utils/errorhandler";
 import catchAsyncErrors from "../middlewares/catchAsyncError"
+import { Request, Response, NextFunction } from 'express';
+
+// custom request interface
+interface CustomRequest extends Request {
+  user?: {
+    _id: string;
+  };
+}
 
 // Create new Order
-const newOrder = catchAsyncErrors(async (req, res, next) => {
+const newOrder = catchAsyncErrors(async (req:CustomRequest, res:Response, next:NextFunction) => {
   const {
     shippingInfo,
     orderItems,
@@ -14,6 +22,10 @@ const newOrder = catchAsyncErrors(async (req, res, next) => {
     shippingPrice,
     totalPrice,
   } = req.body;
+
+  if (!req.user) {
+    return next(new ErrorHandler("User not authenticated", 401));
+  }
 
   const order = await Order.create({
     shippingInfo,
@@ -51,7 +63,11 @@ const getSingleOrder = catchAsyncErrors(async (req, res, next) => {
 });
 
 // get logged in user  Orders
-const myOrders = catchAsyncErrors(async (req, res, next) => {
+const myOrders = catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new ErrorHandler("User not authenticated", 401));
+  }
+  
   const orders = await Order.find({ user: req.user!._id });
 
   res.status(200).json({
