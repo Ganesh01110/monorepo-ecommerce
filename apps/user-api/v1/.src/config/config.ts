@@ -31,6 +31,12 @@ if (!process.env.CLOUDINARY_NAME||
     throw new Error("Missing cloudinary values in environment variables");
 }
 
+if (!process.env.STRIPE_API_KEY||
+    process.env.STRIPE_SECRET_KEY
+) {
+    throw new Error("Missing stripe values in environment variables");
+}
+
 const _config={
    port:process.env.PORT,  
    // we cannot import value from .env as per some rule so we installed dotenv packege and imported it
@@ -45,9 +51,11 @@ const _config={
    smtpMail:process.env.SMPT_MAIL,
    smtpPassword:process.env.SMPT_PASSWORD,
    stripeSecretKey:process.env.STRIPE_SECRET_KEY,
+   stripeApiKey:process.env.STRIPE_API_KEY,
    cloudinaryCloud:process.env.CLOUDINARY_NAME,
    cloudinaryApiKey:process.env.CLOUDINARY_API_KEY,
    clouddinnaryApiSecret:process.env.CLOUDINARY_API_SECRET,
+   
 };
 
 export const config = Object.freeze(_config);
