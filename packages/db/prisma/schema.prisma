@@ -6,3 +6,33 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id                   String      @id @default(cuid())
+  name                 String
+  email                String      @unique
+  password             String
+  avatar               Avatar      @relation(fields: [avatarId], references: [id])
+  role                 String      @default("user")
+  createdAt            DateTime    @default(now())
+  resetPasswordToken   String?
+  resetPasswordExpire  DateTime?
+
+  avatarId             String
+
+  // Relations
+  reviews              Review[]
+  orders               Order[]
+  products             Product[]
+
+  @@map("users")
+}
+
+model Avatar {
+  id         String  @id @default(cuid())
+  public_id  String
+  url        String
+  user       User?
+
+  @@map("avatars")
+}
