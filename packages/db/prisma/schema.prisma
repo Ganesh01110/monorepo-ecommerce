@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["order", " "," "]
+  schemas  = ["order", "product"," "]
 }
 
 
@@ -78,5 +78,57 @@ model Product {
   // Add other fields for the Product model as necessary
 
   @@schema("order")
+}
+
+
+// product schema
+
+model Product {
+  id           String       @id @default(auto()) @map("_id")
+  name         String
+  description  String
+  price        Float
+  ratings      Float        @default(0)
+  images       Image[]
+  category     String
+  stock        Int          @default(1)
+  numOfReviews Int          @default(0)
+  reviews      Review[]
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  createdAt    DateTime     @default(now())
+
+  @@schema("product")
+}
+
+model Image {
+  id        String @id @default(auto()) @map("_id")
+  public_id String
+  url       String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  @@schema("product")
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id")
+  userId    String
+  name      String
+  rating    Float
+  comment   String
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@schema("product")
+}
+
+model User {
+  id       String     @id @default(auto()) @map("_id")
+  products Product[]
+  reviews  Review[]
+  // Add other fields for the User model as necessary
+
+  @@schema("product")
 }
 
