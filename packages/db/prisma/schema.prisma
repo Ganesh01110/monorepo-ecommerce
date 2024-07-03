@@ -66,3 +66,36 @@ model Image {
 
   @@map("images")
 }
+
+
+model Review {
+  id       String    @id @default(cuid())
+  userId   String
+  user     User      @relation(fields: [userId], references: [id])
+  name     String
+  rating   Float
+  comment  String
+  product  Product?  @relation(fields: [productId], references: [id])
+  productId String?
+
+  @@map("reviews")
+}
+
+model Order {
+  id             String       @id @default(cuid())
+  shippingInfo   ShippingInfo
+  orderItems     OrderItem[]
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  paymentInfo    PaymentInfo
+  paidAt         DateTime
+  itemsPrice     Float
+  taxPrice       Float
+  shippingPrice  Float
+  totalPrice     Float
+  orderStatus    String       @default("Processing")
+  deliveredAt    DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@map("orders")
+}
