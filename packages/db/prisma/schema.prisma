@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["order", "product"," "]
+  schemas  = ["order", "product","user"]
 }
 
 
@@ -130,5 +130,36 @@ model User {
   // Add other fields for the User model as necessary
 
   @@schema("product")
+}
+
+
+// user schema
+
+model User {
+  id                   String    @id @default(cuid())
+  name                 String
+  email                String    @unique
+  password             String
+  avatar               Avatar    @relation(fields: [avatarId], references: [id])
+  role                 String    @default("user")
+  createdAt            DateTime  @default(now())
+  resetPasswordToken   String?
+  resetPasswordExpire  DateTime?
+
+  avatarId             String
+
+
+  @@schema("user")
+}
+
+model Avatar {
+  id         String  @id @default(cuid())
+  public_id  String
+  url        String
+  user       User?
+
+  userId     String? @unique
+
+  @@schema("user")
 }
 
