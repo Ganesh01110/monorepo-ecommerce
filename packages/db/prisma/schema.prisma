@@ -36,3 +36,33 @@ model Avatar {
 
   @@map("avatars")
 }
+
+model Product {
+  id           String    @id @default(cuid())
+  name         String
+  description  String
+  price        Float
+  ratings      Float      @default(0)
+  images       Image[]
+  category     String
+  stock        Int        @default(1)
+  numOfReviews Int        @default(0)
+  reviews      Review[]
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  createdAt    DateTime   @default(now())
+
+  orderItems   OrderItem[]
+
+  @@map("products")
+}
+
+model Image {
+  id         String    @id @default(cuid())
+  public_id  String
+  url        String
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id])
+
+  @@map("images")
+}
