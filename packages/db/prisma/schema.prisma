@@ -29,8 +29,8 @@ model User {
 }
 
 model Avatar {
-  id         String  @id @default(cuid())
-  public_id  String
+  id         String  @id @default(cuid()) 
+  public_id  String  
   url        String
   user       User?
 
@@ -49,7 +49,7 @@ model Product {
   numOfReviews Int        @default(0)
   reviews      Review[]
   userId       String
-  user         User       @relation(fields: [userId], references: [id])
+  user         User       @relation(fields: [userId], references: [id], map: "fk_userId")
   createdAt    DateTime   @default(now())
 
   orderItems   OrderItem[]
@@ -62,7 +62,7 @@ model Image {
   public_id  String
   url        String
   productId  String
-  product    Product   @relation(fields: [productId], references: [id])
+  product    Product   @relation(fields: [productId], references: [id], map: "fk_productId")
 
   @@map("images")
 }
@@ -71,11 +71,11 @@ model Image {
 model Review {
   id       String    @id @default(cuid())
   userId   String
-  user     User      @relation(fields: [userId], references: [id])
+  user     User      @relation(fields: [userId], references: [id], map: "fk_review_userId")
   name     String
   rating   Float
   comment  String
-  product  Product?  @relation(fields: [productId], references: [id])
+  product  Product?  @relation(fields: [productId], references: [id], map: "fk_review_productId")
   productId String?
 
   @@map("reviews")
@@ -83,11 +83,11 @@ model Review {
 
 model Order {
   id             String       @id @default(cuid())
-  shippingInfo   ShippingInfo
+  shippingInfo   ShippingInfo @relation(fields: [shippingInfoId], references: [id], map: "fk_shippingInfoId")
   orderItems     OrderItem[]
   userId         String
-  user           User         @relation(fields: [userId], references: [id])
-  paymentInfo    PaymentInfo
+  user           User         @relation(fields: [userId], references: [id], map: "fk_order_userId")
+  paymentInfo    PaymentInfo 
   paidAt         DateTime
   itemsPrice     Float
   taxPrice       Float
@@ -96,6 +96,9 @@ model Order {
   orderStatus    String       @default("Processing")
   deliveredAt    DateTime?
   createdAt      DateTime     @default(now())
+
+  shippingInfoId String       @unique
+  paymentInfoId  String       @unique
 
   @@map("orders")
 }
@@ -108,9 +111,7 @@ model ShippingInfo {
   country   String
   pinCode   Int
   phoneNo   String
-  order     Order   @relation(fields: [orderId], references: [id])
-
-  orderId   String
+  order     Order?   
 
   @@map("shipping_infos")
 }
@@ -122,8 +123,8 @@ model OrderItem {
   quantity  Int
   image     String
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], map: "fk_orderItem_productId")
+  order     Order    @relation(fields: [orderId], references: [id], map: "fk_orderItem_orderId")
 
   orderId   String
 
@@ -133,9 +134,10 @@ model OrderItem {
 model PaymentInfo {
   id      String  @id @default(cuid())
   status  String
-  order   Order   @relation(fields: [orderId], references: [id])
+  orderId String  @unique
+  order   Order   @relation(fields: [orderId], references: [id], map: "fk_paymentInfo_orderId")
 
-  orderId String
+ 
 
   @@map("payment_infos")
 }
