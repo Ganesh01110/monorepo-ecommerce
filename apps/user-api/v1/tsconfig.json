@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "typeRoots": ["./node_modules/@types", "./.src/types"],
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
     /* Projects */
@@ -105,5 +105,9 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+  },
+  "include": [
+    ".src", // Adjust based on your project structure
+    "express.d.ts"
+  ]
 }
