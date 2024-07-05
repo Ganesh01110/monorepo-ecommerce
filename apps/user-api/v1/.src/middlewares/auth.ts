@@ -10,7 +10,12 @@ interface DecodedData {
   // Add other properties from decoded JWT if necessary
 }
 
-const isAuthenticatedUser = catchAsyncErrors(async (req: Request, res: Response, next: NextFunction) => {
+interface CustomRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
+const isAuthenticatedUser = catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction) => {
 
   const { token } = req.cookies;
 
