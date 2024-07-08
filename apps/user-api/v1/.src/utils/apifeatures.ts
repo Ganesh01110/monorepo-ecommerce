@@ -1,18 +1,26 @@
 import { Document, Model, Query } from 'mongoose';
 
-class ApiFeatures<T extends Document, U extends Model<T>> {
-  private query: Query<T[], T, U>;
-  private queryStr: any;
+// class ApiFeatures<T extends Document, U extends Model<T>> {
+//   private query: Query<T[], T, U>;
+//   private queryString: U|any;
 
-  constructor(query: Query<T[], T, U>, queryStr: any) {
+//   constructor(query: Query<T[], T, U>, queryStr: U|any) {
+//     this.query = query;
+//     this.queryString = queryString;
+//   }
+export class ApiFeatures<T extends Document> {
+  private query: Query<T[], T>;
+  private queryString: any;
+
+  constructor(query: Query<T[], T>, queryString: any) {
     this.query = query;
-    this.queryStr = queryStr;
+    this.queryString = queryString;
   }
     search() {
-      const keyword = this.queryStr.keyword
+      const keyword = this.queryString.keyword
         ? {
             name: {
-              $regex: this.queryStr.keyword,
+              $regex: this.queryString.keyword,
               $options: "i",
             },
           }
@@ -23,7 +31,7 @@ class ApiFeatures<T extends Document, U extends Model<T>> {
     }
   
     filter() {
-      const queryCopy = { ...this.queryStr };
+      const queryCopy = { ...this.queryString };
       //   Removing some fields for category
       const removeFields = ["keyword", "page", "limit"];
   
@@ -31,16 +39,16 @@ class ApiFeatures<T extends Document, U extends Model<T>> {
   
       // Filter For Price and Rating
   
-      let queryStr = JSON.stringify(queryCopy);
-      queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (key) => `$${key}`);
+      let queryString = JSON.stringify(queryCopy);
+      queryString = queryString.replace(/\b(gt|gte|lt|lte)\b/g, (key) => `$${key}`);
   
-      this.query = this.query.find(JSON.parse(queryStr));
+      this.query = this.query.find(JSON.parse(queryString));
   
       return this;
     }
   
     pagination(resultPerPage: number) {
-      const currentPage = Number(this.queryStr.page) || 1;
+      const currentPage = Number(this.queryString.page) || 1;
   
       const skip = resultPerPage * (currentPage - 1);
   

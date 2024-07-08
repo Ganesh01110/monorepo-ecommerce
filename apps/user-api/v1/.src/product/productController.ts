@@ -61,26 +61,19 @@ const createProduct = catchAsyncError(async (req: AuthenticatedRequest, res, nex
 });
 
 // Get All Product
-const getAllProducts = catchAsyncError(async (req: Request, res: Response, next: NextFunction)=> {
+const getAllProducts = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
   const resultPerPage = 8;
-  // const productsCount = await Product.countDocuments();
+  const productsCount = await Product.countDocuments();
 
-  const apiFeature = new ApiFeatures (Product.find(), req.query)
+  const apiFeature = new ApiFeatures(Product.find<IProduct>(), req.query)
     .search()
     .filter();
 
-  // let products = await apiFeature.query;
-
-  // let filteredProductsCount = products.length;
   let products = await apiFeature.executeQuery();
-
-  const productsCount = await Product.countDocuments();
-
-  let filteredProductsCount = products.length;
+  const filteredProductsCount = products.length;
 
   apiFeature.pagination(resultPerPage);
 
-  // products = await apiFeature.query;
   products = await apiFeature.executeQuery();
 
   res.status(200).json({
@@ -91,6 +84,7 @@ const getAllProducts = catchAsyncError(async (req: Request, res: Response, next:
     filteredProductsCount,
   });
 });
+
 
 // Get All Product (Admin)
 const getAdminProducts = catchAsyncError(async (req, res, next) => {
@@ -170,7 +164,7 @@ const updateProduct = catchAsyncError(async (req, res, next) => {
 
 // Delete Product
 
-const deleteProduct = catchAsyncError(async (req, res, next) => {
+const deleteProduct = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
   const product = await Product.findById(req.params.id);
 
   if (!product) {
@@ -182,7 +176,8 @@ const deleteProduct = catchAsyncError(async (req, res, next) => {
     await cloudinary.v2.uploader.destroy(product.images[i].public_id);
   }
 
-  await product.remove();
+  // await product.remove();
+  await product.deleteOne();
 
   res.status(200).json({
     success: true,
